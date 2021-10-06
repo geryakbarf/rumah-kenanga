@@ -1,0 +1,25 @@
+{
+  "name": "rumah-kenanga",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Gery Akbar Fauzi",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-session": "^1.4.0",
+    "dotenv": "^10.0.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.2.1",
+    "express-winston": "^4.2.0",
+    "mongoose": "^6.0.9",
+    "mongoose-delete": "^0.5.4",
+    "uuid": "^8.3.2",
+    "winston": "^3.3.3"
+  }
+}
