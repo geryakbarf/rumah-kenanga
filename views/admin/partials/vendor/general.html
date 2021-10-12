@@ -1,0 +1,43 @@
+<div class="card card-primary" v-show="sideBarIndex === 0">
+    <div class="card-header">
+        <h3 class="card-title">Informasi General</h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <div class="form-group">
+            <label for="name">*Nama</label>
+            <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan Nama Vendor"
+                   v-model="form.name">
+        </div>
+        <div class="form-group">
+            <label>*Jenis Vendor</label>
+            <select class="form-control" name="type" id="type" v-model="form.type">
+                <option value="" disabled selected>Pilih Jenis Vendor</option>
+                <option value="Entertaintment">Entertaintment</option>
+                <option value="Dokumentasi">Dokumentasi</option>
+                <option value="MUA">Make Up Artist</option>
+                <option value="Catering">Catering</option>
+                <option value="Kostum">Kostum</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="name">*Nomor Kontak</label>
+            <input type="text" class="form-control" name="phone" id="phone" placeholder="Contoh : 085156xxx"
+                   v-model="form.phone">
+        </div>
+        <div class="form-group">
+            <label for="image">Foto Cover Vendor </label>
+            <div class="input-group">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="image" v-on:change="onPhotoChange">
+                    <label class="custom-file-label" id="labelphoto" for="image">Pilih File</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.card-body -->
+
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary" v-on:click="onSave()">Simpan</button>
+    </div>
+</div>

@@ -4,6 +4,7 @@ const express = require('express')
 const app = express()
 const path = require('path')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 const fileUpload = require('express-fileupload')
 const session = require('cookie-session')
 const mongo = require('./models/index')
@@ -11,7 +12,7 @@ const mongo = require('./models/index')
 //database
 const db = mongo.connection;
 db.on('error', console.error.bind(console, 'connection error:'))
-db.once('open', function() {
+db.once('open', function () {
     console.log("Connection Established")
 })
 
@@ -28,7 +29,7 @@ app.use(fileUpload())
 app.disable('x-powered-by')
 
 //load body parser
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
 //load static file

@@ -13,9 +13,11 @@ const getAllVendor = async (req, res) => {
 const insertVendor = async (req, res) => {
     try {
         const vendor = await Vendor.create(req.body)
+        const result = await Vendor.findOne({createdAt: vendor.createdAt})
         return res.json({
             code: 1,
-            message: "Berhasil menambahkan vendor baru"
+            message: "Berhasil menambahkan vendor baru",
+            id: result._id
         })
     } catch (error) {
         console.log(error)

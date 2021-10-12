@@ -54,9 +54,27 @@ router.get('/vendor', (req, res) => {
         {src: "/assets/vuejs/list-vendor.js"}
     ]
     const loadCSS = [
-        {src: "https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"}
+        {src: "https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"},
+        {src: "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"}
     ]
     return res.render('admin/vendor', {title: 'Admin - Vendor', loadJS, loadCSS, route})
+})
+
+router.get('/tambah-vendor', (req, res) => {
+    const route = "Sub"
+    const loadJS = [
+        {src: "https://code.jquery.com/jquery-3.6.0.min.js"},
+        {src: "https://cdn.jsdelivr.net/npm/vue/dist/vue.js"},
+        {src: "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"},
+        {src: "https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0-rc/js/adminlte.min.js"},
+        {src: "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"},
+        {src: "/assets/vuejs/form-vendor.js"}
+    ]
+    const loadCSS = [
+        {src: "https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"},
+        {src: "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"}
+    ]
+    return res.render('admin/tambah-vendor', {title : "Admin - Tambah Vendor", loadCSS, loadJS, route})
 })
 
 module.exports = router;
