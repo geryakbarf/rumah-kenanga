@@ -1,7 +1,7 @@
 var app = new Vue({
     el: '#form-login',
     data: {
-        form :{
+        form: {
             email: "",
             password: ""
         }

@@ -4,7 +4,7 @@ const auth = require("../middleware/authentification");
 
 router.get('/login', (req, res) => {
     const loadJS = [
-        {src : "https://code.jquery.com/jquery-3.6.0.min.js"},
+        {src: "https://code.jquery.com/jquery-3.6.0.min.js"},
         {src: "https://cdn.jsdelivr.net/npm/vue/dist/vue.js"},
         {src: "https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"},
         {src: "https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"},
@@ -29,7 +29,34 @@ router.post('/login', (req, res) => {
 router.use(auth)
 
 router.get('/', (req, res) => {
-    return res.render('index', {pageTitle: 'All of it just works'});
+    const route = "Main"
+    const loadJS = [
+        {src: "https://code.jquery.com/jquery-3.6.0.min.js"},
+        {src: "https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"},
+        {src: "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"},
+        {src: "https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0-rc/js/adminlte.min.js"},
+        {src: "https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js"}
+    ]
+    const loadCSS = [
+        {src: "https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"}
+    ]
+    return res.render('admin/index', {title: 'Admin - Home', loadCSS, loadJS, route});
 });
+
+router.get('/vendor', (req, res) => {
+    const route = "Main"
+    const loadJS = [
+        {src: "https://code.jquery.com/jquery-3.6.0.min.js"},
+        {src: "https://cdn.jsdelivr.net/npm/vue/dist/vue.js"},
+        {src: "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"},
+        {src: "https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0-rc/js/adminlte.min.js"},
+        {src: "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"},
+        {src: "/assets/vuejs/list-vendor.js"}
+    ]
+    const loadCSS = [
+        {src: "https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"}
+    ]
+    return res.render('admin/vendor', {title: 'Admin - Vendor', loadJS, loadCSS, route})
+})
 
 module.exports = router;
