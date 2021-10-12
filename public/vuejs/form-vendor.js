@@ -56,18 +56,14 @@ var app = new Vue({
         onInsert: async function () {
             try {
                 let formData = {...this.form}
-                console.log(formData)
                 if (formData.image !== null)
                     formData.image = await this.photoUpload()
-                console.log(formData)
                 const result = await fetch('/api/insert-vendor', {
                     method: 'POST',
                     body: JSON.stringify(formData),
                     headers: {'Content-Type': "application/json"}
                 })
-                console.log(result)
                 const data = await result.json()
-                console.log(data)
                 return Promise.resolve(data)
             } catch (error) {
                 console.log(error)
