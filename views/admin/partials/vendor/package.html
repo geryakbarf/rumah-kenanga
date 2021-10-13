@@ -1,0 +1,47 @@
+<div v-show="sideBarIndex === 4">
+    <button type="submit" class="btn btn-primary" v-on:click="togglePackageMode(true)" style="margin: 10px">Tambah
+    </button>
+    <div class="card card-primary" v-show="addPackageMode === true">
+        <div class="card-header">
+            <h3 class="card-title">Tambah Package Baru</h3>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+            <div class="form-group">
+                <label for="name">*Nama</label>
+                <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan Nama Package"
+                       v-model="formPackage.name">
+            </div>
+            <div class="form-group">
+                <label for="price">*Harga Package</label>
+                <input type="number" class="form-control" name="price" id="price" placeholder="Masukkan Harga Package"
+                       v-model="formPackage.price">
+            </div>
+            <div class="form-group">
+                <label>*Komposisi Package</label>
+                <tinymce v-if="isLoadingPackage == false" v-model="formPackage.composition"
+                         :toolbar1="'undo redo | bold italic strikethrough underline'"></tinymce>
+            </div>
+            <div class="form-group">
+                <label>Catatan</label>
+                <tinymce v-if="isLoadingPackage == false" v-model="formPackage.note"
+                         :toolbar1="'undo redo | bold italic strikethrough underline'"></tinymce>
+            </div>
+            <div class="form-group">
+                <label for="image">Foto Cover Package </label>
+                <div class="input-group">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="image" v-on:change="onPackageImageChange">
+                        <label class="custom-file-label" id="labelphotopackage" for="image">Pilih File</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary" v-on:click="onSavePackage()">Simpan</button>
+            <button type="submit" class="btn btn-primary" v-on:click="onCancelPackage()">Batal</button>
+        </div>
+    </div>
+</div>

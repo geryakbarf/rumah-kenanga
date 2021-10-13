@@ -3,6 +3,8 @@ var app = new Vue({
     data: {
         sideBarIndex: 0,
         defaultImage: "",
+        isLoadingPackage: true,
+        addPackageMode: false,
         form: {
             _id: null,
             name: "",
@@ -13,7 +15,17 @@ var app = new Vue({
             phone: "",
             image: null,
             category: []
-        }
+        },
+        formPackage: {
+            _id: null,
+            vendorId: null,
+            name: "",
+            price: "",
+            note: "",
+            image: null,
+            composition: ""
+        },
+        package: []
     }, //enddata
     methods: {
         checkResponse: function (data) {
@@ -39,6 +51,16 @@ var app = new Vue({
             if (this.form.type === "")
                 status = true
             if (this.form.phone === "" || isNaN(this.form.phone))
+                status = true
+            return status
+        },
+        packageValidation: function () {
+            let status = false
+            if (this.formPackage.name === "")
+                status = true
+            if (this.formPackage.price === "" || isNaN(this.formPackage.price))
+                status = true
+            if (this.formPackage.composition === "")
                 status = true
             return status
         },
@@ -97,6 +119,9 @@ var app = new Vue({
         activeSideBarIndex: function (idx) {
             return this.sideBarIndex === idx
         },
+        togglePackageMode: function (status) {
+            this.addPackageMode = status
+        },
         onPhotoChange: function (e) {
             try {
                 let [file] = e.target.files
@@ -133,16 +158,59 @@ var app = new Vue({
                     //Pengubahan data gambar
                     if (data.data.image) {
                         document.getElementById("labelphoto").innerHTML = data.data.image.substring(1, data.data.image.length);
-                        this.defaultImage = data.data.image.substring(1, data.data.image.length)
+                        this.defaultImage = data.data.image
                     }
-                } else
-                    return
+                }
             } catch (e) {
                 console.log(e)
+            }
+        },
+        onPackageImageChange: function (e) {
+            try {
+                let [file] = e.target.files
+                if (!file)
+                    throw Error("File tidak dipilih")
+                this.formPackage.image = file
+                document.getElementById("labelphotopackage").innerHTML = this.formPackage.image.name;
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        loadPackage: async function () {
+            try {
+                if (vendorID) {
+                    this.formPackage.vendorId = vendorID
+                    const result = await fetch(`/api/package/${this.form._id}`)
+                    const data = await result.json()
+                    this.package = data.data
+                    this.isLoadingPackage = false
+                }
+            } catch (e) {
+                console.log(e)
+            }
+        },
+        onCancelPackage: function () {
+            this.addPackageMode = false
+            this.formPackage._id = null
+            this.formPackage.name = ""
+            this.formPackage.price = ""
+            this.formPackage.image = null
+            this.formPackage.composition = ""
+            this.formPackage.note = ""
+        },
+        onSavePackage: async function () {
+            const status = this.packageValidation()
+            if (status) {
+                toastr.warning("Harap isi semua form isian!")
+                return
             }
         }
     }, //endmethods
     mounted() {
         this.loadVendor()
-    } //endMounted
+        this.loadPackage()
+    }, //endMounted
+    components: {
+        'tinymce': VueEasyTinyMCE
+    }
 })
