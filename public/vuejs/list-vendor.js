@@ -5,7 +5,7 @@ var app = new Vue({
     }, //endata
     methods: {
         loadVendor: async function () {
-            const result = await fetch('/api/get-all-vendor')
+            const result = await fetch('/api/vendor')
             const data = await result.json()
             if (data.code === 1)
                 this.listVendor = data.data

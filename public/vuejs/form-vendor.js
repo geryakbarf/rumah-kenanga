@@ -2,6 +2,7 @@ var app = new Vue({
     el: '#form-vendor',
     data: {
         sideBarIndex: 0,
+        defaultImage: "",
         form: {
             _id: null,
             name: "",
@@ -21,11 +22,15 @@ var app = new Vue({
             else {
                 toastr.success(data.message)
                 let context = this
-                setTimeout(() => {
-                    window.removeEventListener('beforeunload', context.leaving, true)
-                    window.location = "/admin/edit-vendor/" + data.id;
-                }, 1000);
+                if (this.form._id === null)
+                    this.redirectToEditPage(context, data)
             }
+        },
+        redirectToEditPage: function (context, data) {
+            setTimeout(() => {
+                window.removeEventListener('beforeunload', context.leaving, true)
+                window.location = "/admin/edit-vendor/" + data.id;
+            }, 1000);
         },
         validation: function () {
             let status = false
@@ -47,18 +52,16 @@ var app = new Vue({
                 const insert = await this.onInsert()
                 this.checkResponse(insert)
             } else {
-                //TODO Ketika pengguna mengupdate data vendor
+                const update = await this.onUpdate()
+                this.checkResponse(update)
             }
-        },
-        onUpdate: async function () {
-
         },
         onInsert: async function () {
             try {
                 let formData = {...this.form}
                 if (formData.image !== null)
                     formData.image = await this.photoUpload()
-                const result = await fetch('/api/insert-vendor', {
+                const result = await fetch('/api/vendor', {
                     method: 'POST',
                     body: JSON.stringify(formData),
                     headers: {'Content-Type': "application/json"}
@@ -68,6 +71,23 @@ var app = new Vue({
             } catch (error) {
                 console.log(error)
                 return Promise.reject(error)
+            }
+        },
+        onUpdate: async function () {
+            try {
+                let formData = {...this.form}
+                if (formData.image !== null && formData.image !== this.defaultImage)
+                    formData.image = await this.photoUpload()
+                const result = await fetch('/api/vendor', {
+                    method: 'PUT',
+                    body: JSON.stringify(formData),
+                    headers: {'Content-Type': "application/json"}
+                })
+                const data = await result.json()
+                return Promise.resolve(data)
+            } catch (e) {
+                console.log(e)
+                return Promise.reject(e)
             }
         },
         setSideBarIndex: function (index) {
@@ -102,9 +122,27 @@ var app = new Vue({
             } catch (err) {
                 return Promise.reject(err);
             }
+        },
+        loadVendor: async function () {
+            try {
+                if (vendorID) {
+                    this.form._id = vendorID
+                    const result = await fetch(`/api/vendor/${this.form._id}`)
+                    const data = await result.json()
+                    this.form = data.data
+                    //Pengubahan data gambar
+                    if (data.data.image) {
+                        document.getElementById("labelphoto").innerHTML = data.data.image.substring(1, data.data.image.length);
+                        this.defaultImage = data.data.image.substring(1, data.data.image.length)
+                    }
+                } else
+                    return
+            } catch (e) {
+                console.log(e)
+            }
         }
     }, //endmethods
     mounted() {
-        console.log(this.sideBarIndex)
+        this.loadVendor()
     } //endMounted
 })

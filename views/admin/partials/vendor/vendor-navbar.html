@@ -30,7 +30,7 @@
                        v-bind:class="[activeSideBarIndex(1) ? 'active' : '', 'nav-link']">
                         <i class="nav-icon fas fa-table"></i>
                         <p>
-                            Category
+                            Social Media
                         </p>
                     </a>
                 </li>
@@ -38,9 +38,29 @@
                 <li class="nav-item">
                     <a href="javascript:void(0)" v-on:click="setSideBarIndex(2)"
                        v-bind:class="[activeSideBarIndex(2) ? 'active' : '', 'nav-link']">
+                        <i class="nav-icon fas fa-table"></i>
+                        <p>
+                            Category
+                        </p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="javascript:void(0)" v-on:click="setSideBarIndex(3)"
+                       v-bind:class="[activeSideBarIndex(3) ? 'active' : '', 'nav-link']">
                         <i class="nav-icon fas fa-columns"></i>
                         <p>
                             Sub-Category
+                        </p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="javascript:void(0)" v-on:click="setSideBarIndex(4)"
+                       v-bind:class="[activeSideBarIndex(4) ? 'active' : '', 'nav-link']">
+                        <i class="nav-icon fas fa-columns"></i>
+                        <p>
+                            Package
                         </p>
                     </a>
                 </li>

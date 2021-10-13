@@ -10,6 +10,17 @@ const getAllVendor = async (req, res) => {
     }
 }
 
+const getOneVendor = async (req, res) => {
+    try {
+        let id = req.params.id
+        let data = await Vendor.findOne({_id: id})
+        return res.json({code: 1, data})
+    } catch (e) {
+        console.log(e)
+        return res.json({code: 0, message: "Terjadi kesalahan, periksa jaringan anda!"})
+    }
+}
+
 const insertVendor = async (req, res) => {
     try {
         const vendor = await Vendor.create(req.body)
@@ -28,7 +39,23 @@ const insertVendor = async (req, res) => {
     }
 }
 
+const updateVendor = async (req, res) => {
+    try {
+        const vendor = await Vendor.updateOne({_id: req.body._id}, req.body)
+        return res.json({
+            code: 1,
+            message: "Berhasil memperbarui data vendor!",
+            id: req.body._id
+        })
+    } catch (e) {
+        console.log(e)
+        return res.json({code: 0, message: "Terjadi kesalahan, periksa jaringan anda!"})
+    }
+}
+
 module.exports = {
     getAllVendor,
-    insertVendor
+    insertVendor,
+    getOneVendor,
+    updateVendor
 }
