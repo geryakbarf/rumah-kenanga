@@ -13,6 +13,7 @@ router.put('/vendor', Vendor.updateVendor)
 //Area Package
 router.get('/package/:id', Package.getVendorPackage)
 router.post('/package', Package.insertVendorPackage)
+router.put('/package', Package.updateVendorPackage)
 
 //Area Upload File
 router.post('/upload-image', Upload.uploadImage)

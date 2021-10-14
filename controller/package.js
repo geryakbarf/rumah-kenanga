@@ -21,7 +21,18 @@ const insertVendorPackage = async (req, res) => {
     }
 }
 
+const updateVendorPackage = async (req, res) => {
+    try {
+        const result = await Package.updateOne({_id: req.body._id}, req.body)
+        return res.json({code: 1, message: "Berhasil memperbarui data package"})
+    } catch (e) {
+        console.log(e)
+        return res.json({code: 0, message: "Terjadi kesalahan, periksa internet anda!"})
+    }
+}
+
 module.exports = {
     getVendorPackage,
-    insertVendorPackage
+    insertVendorPackage,
+    updateVendorPackage
 }

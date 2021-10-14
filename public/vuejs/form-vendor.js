@@ -3,6 +3,7 @@ var app = new Vue({
     data: {
         sideBarIndex: 0,
         defaultImage: "",
+        defaultPackageImage: "",
         isLoadingPackage: true,
         addPackageMode: false,
         form: {
@@ -82,7 +83,7 @@ var app = new Vue({
             try {
                 let formData = {...this.form}
                 if (formData.image !== null)
-                    formData.image = await this.photoUpload()
+                    formData.image = await this.photoUpload("Vendor")
                 const result = await fetch('/api/vendor', {
                     method: 'POST',
                     body: JSON.stringify(formData),
@@ -99,7 +100,7 @@ var app = new Vue({
             try {
                 let formData = {...this.form}
                 if (formData.image !== null && formData.image !== this.defaultImage)
-                    formData.image = await this.photoUpload()
+                    formData.image = await this.photoUpload("Vendor")
                 const result = await fetch('/api/vendor', {
                     method: 'PUT',
                     body: JSON.stringify(formData),
@@ -120,6 +121,8 @@ var app = new Vue({
             return this.sideBarIndex === idx
         },
         togglePackageMode: function (status) {
+            this.onCancelPackage()
+            document.getElementById("packagetitle").innerHTML = "Tambah Package Baru"
             this.addPackageMode = status
         },
         onPhotoChange: function (e) {
@@ -133,10 +136,13 @@ var app = new Vue({
                 console.log(error)
             }
         },
-        photoUpload: async function () {
+        photoUpload: async function (type) {
             try {
                 let formData = new FormData();
-                formData.append('file', this.form.image)
+                if (type === "Vendor")
+                    formData.append('file', this.form.image)
+                else if (type === "Package")
+                    formData.append('file', this.formPackage.image)
                 const res = await fetch('/api/upload-image', {
                     method: 'POST',
                     body: formData
@@ -197,12 +203,86 @@ var app = new Vue({
             this.formPackage.image = null
             this.formPackage.composition = ""
             this.formPackage.note = ""
+            document.getElementById("labelphotopackage").innerHTML = "Pilih File"
+        },
+        onSelectPackage: function (index) {
+            this.onCancelPackage()
+            this.isLoadingPackage = true
+            document.getElementById("packagetitle").innerHTML = "Ubah Data Package"
+            this.formPackage._id = this.package[index]._id
+            this.formPackage.name = this.package[index].name
+            this.formPackage.price = this.package[index].price
+            this.formPackage.note = this.package[index].note
+            this.formPackage.composition = this.package[index].composition
+            if (this.package[index].image) {
+                this.formPackage.image = this.package[index].image
+                this.defaultPackageImage = this.package[index].image
+                document.getElementById("labelphotopackage").innerHTML =
+                    this.package[index].image.substring(1, this.package[index].image.length)
+            }
+            this.isLoadingPackage = false
+            this.addPackageMode = true
+            window.scrollTo(0, 0)
         },
         onSavePackage: async function () {
             const status = this.packageValidation()
             if (status) {
-                toastr.warning("Harap isi semua form isian!")
+                toastr.warning("Harap isi semua form isian yang wajib diisi!")
                 return
+            }
+            toastr.info("Harap tunggu...")
+            if (this.formPackage._id === null) {
+                const insert = await this.onInsertPackage()
+                if (insert.code === 0)
+                    toastr.error(insert.message)
+                else {
+                    toastr.success(insert.message)
+                    this.onCancelPackage()
+                    this.loadPackage()
+                }
+            } else {
+                const update = await this.onUpdatePackage()
+                if (update.code === 0)
+                    toastr.error(update.message)
+                else {
+                    toastr.success(update.message)
+                    this.onCancelPackage()
+                    this.loadPackage()
+                }
+            }
+        },
+        onInsertPackage: async function () {
+            try {
+                let formData = {...this.formPackage}
+                if (formData.image !== null)
+                    formData.image = await this.photoUpload("Package")
+                const result = await fetch('/api/package', {
+                    method: 'POST',
+                    body: JSON.stringify(formData),
+                    headers: {'Content-Type': "application/json"}
+                })
+                const data = await result.json()
+                return Promise.resolve(data)
+            } catch (e) {
+                console.log(e)
+                return Promise.reject(e)
+            }
+        },
+        onUpdatePackage: async function () {
+            try {
+                let formData = {...this.formPackage}
+                if (formData.image !== null && formData.image !== this.defaultPackageImage)
+                    formData.image = await this.photoUpload("Package")
+                const result = await fetch('/api/package', {
+                    method: 'PUT',
+                    body: JSON.stringify(formData),
+                    headers: {'Content-Type': "application/json"}
+                })
+                const data = await result.json()
+                return Promise.resolve(data)
+            } catch (e) {
+                console.log(e)
+                return Promise.reject(e)
             }
         }
     }, //endmethods

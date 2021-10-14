@@ -3,7 +3,7 @@
     </button>
     <div class="card card-primary" v-show="addPackageMode === true">
         <div class="card-header">
-            <h3 class="card-title">Tambah Package Baru</h3>
+            <h3 class="card-title" id="packagetitle">Tambah Package Baru</h3>
         </div>
         <!-- /.card-header -->
         <div class="card-body">
@@ -42,6 +42,26 @@
         <div class="card-footer">
             <button type="submit" class="btn btn-primary" v-on:click="onSavePackage()">Simpan</button>
             <button type="submit" class="btn btn-primary" v-on:click="onCancelPackage()">Batal</button>
+        </div>
+    </div>
+
+    <div class="column col-4" style="padding: 10px;" v-for="(data, index) in package">
+        <div class="card" style="height: 100%; border-radius: 15px;" v-on:click="onSelectPackage(index)">
+            <div class="columns">
+                <div class="column col-5">
+                    <div class="card-image" style="height: 120px; width: 120px; border-radius: 15px;"><img
+                            class="img-responsive" style="height: 100%; width: 100%; object-fit: cover;"
+                            v-bind:alt="data.name"
+                            v-bind:src="data.image?'/assets/uploads'+data.image:'/assets/images/emam-menu-no-photos.jpg'">
+                    </div>
+                </div>
+                <div class="column col-7">
+                    <div class="card-header">
+                        <div class="card-title h6">{{ data.name }}</div><br>
+                        <p>Rp. {{ data.price }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
