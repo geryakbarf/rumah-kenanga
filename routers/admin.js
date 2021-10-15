@@ -63,11 +63,13 @@ router.get('/vendor', (req, res) => {
 router.get('/tambah-vendor', (req, res) => {
     const route = "Sub"
     const loadJS = [
+        {src: "https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.4/tinymce.min.js"},
         {src: "https://code.jquery.com/jquery-3.6.0.min.js"},
         {src: "https://cdn.jsdelivr.net/npm/vue/dist/vue.js"},
         {src: "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"},
         {src: "https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0-rc/js/adminlte.min.js"},
         {src: "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"},
+        {src: "https://cdn.jsdelivr.net/npm/vue-easy-tinymce/dist/vue-easy-tinymce.min.js"},
         {src: "/assets/vuejs/form-vendor.js"}
     ]
     const loadCSS = [

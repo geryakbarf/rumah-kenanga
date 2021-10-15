@@ -3,10 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Works</title>
+    <% if(locals.loadCSS){ %>
+    <% locals.loadCSS.forEach(e =>{ %>
+    <link rel="stylesheet" href="<%= e.src %>">
+    <% }) %>
+    <% } %>
 </head>
 <body>
-    <center>
-        <img src="https://i.kym-cdn.com/photos/images/newsfeed/001/046/258/fa0.jpg">
-    </center>
+<center>
+    <img src="https://i.kym-cdn.com/photos/images/newsfeed/001/046/258/fa0.jpg">
+</center>
+<br>
+<hr>
+<div id="home">
+    <div id="360" style="width: 600px; height: 400px"></div>
+    <button type="submit" v-on:click="gantigambar(1)">Gambar 1</button>
+    <button v-on:click="gantigambar(2)" type="submit">Gambar 2</button>
+</div>
+<% if(locals.loadJS){ %>
+<% locals.loadJS.forEach(e =>{ %>
+<script src="<%= e.src %>"></script>
+<% }) %>
+<% } %>
 </body>
 </html>
