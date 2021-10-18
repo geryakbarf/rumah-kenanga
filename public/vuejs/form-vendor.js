@@ -8,6 +8,7 @@ var app = new Vue({
         isLoadingPackage: true,
         addPackageMode: false,
         addCategoryMode: false,
+        index: 0,
         form: {
             _id: null,
             name: "",
@@ -237,6 +238,7 @@ var app = new Vue({
             this.formPackage.image = null
             this.formPackage.composition = ""
             this.formPackage.note = ""
+            this.defaultPackageImage = ""
             document.getElementById("labelphotopackage").innerHTML = "Pilih File"
         },
         onCancelCategory: function () {
@@ -245,6 +247,8 @@ var app = new Vue({
             this.formCategory.name = ""
             this.formCategory.price = ""
             this.formCategory.image = null
+            this.defaultCategoryImage = ""
+            this.index = 0
             document.getElementById("labelphotocategory").innerHTML = "Pilih File"
         },
         onSelectPackage: function (index) {
@@ -266,22 +270,52 @@ var app = new Vue({
             this.addPackageMode = true
             window.scrollTo(0, 0)
         },
+        onSelectCategory: function (index) {
+            this.onCancelCategory()
+            this.index = index
+            document.getElementById("categorytitle").innerHTML = "Ubah Data Kategori"
+            this.formCategory.id = this.form.category[index].id
+            this.formCategory.name = this.form.category[index].name
+            this.formCategory.price = this.form.category[index].price
+            if (this.form.category[index].image) {
+                this.formCategory.image = this.form.category[index].image
+                this.defaultCategoryImage = this.form.category[index].image
+                document.getElementById("labelphotocategory").innerHTML =
+                    this.form.category[index].image.substring(1, this.form.category[index].image.length)
+            }
+            this.addCategoryMode = true
+            window.scrollTo(0, 0)
+        },
         onSaveCategory: async function () {
             const status = this.categoryValidation()
             if (status) {
                 toastr.warning("Harap isi semua form isian yang wajib diisi!")
                 return
             }
-            this.formCategory.id = this.generateID()
-            if (this.formCategory.image !== null)
-                this.formCategory.image = await this.photoUpload("Category")
-            this.form.category.push(this.formCategory)
-            const insert = await this.onUpdate()
-            if (insert.code === 0)
-                toastr.error(insert.message)
-            else {
-                toastr.success(insert.message)
-                this.onCancelCategory()
+            if (this.formCategory.id === null) {
+                this.formCategory.id = this.generateID()
+                if (this.formCategory.image !== null)
+                    this.formCategory.image = await this.photoUpload("Category")
+                this.form.category.push(this.formCategory)
+                const insert = await this.onUpdate()
+                if (insert.code === 0)
+                    toastr.error(insert.message)
+                else {
+                    toastr.success(insert.message)
+                    this.onCancelCategory()
+                }
+            } else {
+                if (this.formCategory.image !== null && this.formCategory.image !== this.defaultCategoryImage)
+                    this.formCategory.image = await this.photoUpload("Category")
+                this.form.category[this.index] = this.formCategory
+                const insert = await this.onUpdate()
+                if (insert.code === 0)
+                    toastr.error(insert.message)
+                else {
+                    toastr.success(insert.message)
+                    this.onCancelCategory()
+                    this.loadVendor()
+                }
             }
         },
         onSavePackage: async function () {
