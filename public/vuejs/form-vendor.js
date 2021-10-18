@@ -4,8 +4,10 @@ var app = new Vue({
         sideBarIndex: 0,
         defaultImage: "",
         defaultPackageImage: "",
+        defaultCategoryImage: "",
         isLoadingPackage: true,
         addPackageMode: false,
+        addCategoryMode: false,
         form: {
             _id: null,
             name: "",
@@ -25,6 +27,12 @@ var app = new Vue({
             note: "",
             image: null,
             composition: ""
+        },
+        formCategory: {
+            id: null,
+            name: "",
+            price: "",
+            image: null
         },
         package: []
     }, //enddata
@@ -62,6 +70,14 @@ var app = new Vue({
             if (this.formPackage.price === "" || isNaN(this.formPackage.price))
                 status = true
             if (this.formPackage.composition === "")
+                status = true
+            return status
+        },
+        categoryValidation: function () {
+            let status = false
+            if (this.formCategory.name === "")
+                status = true
+            if (this.formCategory.price === "" || isNaN(this.formCategory.price))
                 status = true
             return status
         },
@@ -125,6 +141,11 @@ var app = new Vue({
             document.getElementById("packagetitle").innerHTML = "Tambah Package Baru"
             this.addPackageMode = status
         },
+        toggleCategoryMode: function (status) {
+            this.onCancelPackage()
+            document.getElementById("categorytitle").innerHTML = "Tambah Kategori Baru"
+            this.addCategoryMode = status
+        },
         onPhotoChange: function (e) {
             try {
                 let [file] = e.target.files
@@ -143,6 +164,8 @@ var app = new Vue({
                     formData.append('file', this.form.image)
                 else if (type === "Package")
                     formData.append('file', this.formPackage.image)
+                else if (type === "Category")
+                    formData.append('file', this.formCategory.image)
                 const res = await fetch('/api/upload-image', {
                     method: 'POST',
                     body: formData
@@ -182,6 +205,17 @@ var app = new Vue({
                 console.log(error)
             }
         },
+        onCategoryImageChange: function (e) {
+            try {
+                let [file] = e.target.files
+                if (!file)
+                    throw Error("File tidak dipilih")
+                this.formCategory.image = file
+                document.getElementById("labelphotocategory").innerHTML = this.formCategory.image.name;
+            } catch (error) {
+                console.log(error)
+            }
+        },
         loadPackage: async function () {
             try {
                 if (vendorID) {
@@ -205,6 +239,14 @@ var app = new Vue({
             this.formPackage.note = ""
             document.getElementById("labelphotopackage").innerHTML = "Pilih File"
         },
+        onCancelCategory: function () {
+            this.addCategoryMode = false
+            this.formCategory.id = null
+            this.formCategory.name = ""
+            this.formCategory.price = ""
+            this.formCategory.image = null
+            document.getElementById("labelphotocategory").innerHTML = "Pilih File"
+        },
         onSelectPackage: function (index) {
             this.onCancelPackage()
             this.isLoadingPackage = true
@@ -223,6 +265,24 @@ var app = new Vue({
             this.isLoadingPackage = false
             this.addPackageMode = true
             window.scrollTo(0, 0)
+        },
+        onSaveCategory: async function () {
+            const status = this.categoryValidation()
+            if (status) {
+                toastr.warning("Harap isi semua form isian yang wajib diisi!")
+                return
+            }
+            this.formCategory.id = this.generateID()
+            if (this.formCategory.image !== null)
+                this.formCategory.image = await this.photoUpload("Category")
+            this.form.category.push(this.formCategory)
+            const insert = await this.onUpdate()
+            if (insert.code === 0)
+                toastr.error(insert.message)
+            else {
+                toastr.success(insert.message)
+                this.onCancelCategory()
+            }
         },
         onSavePackage: async function () {
             const status = this.packageValidation()
@@ -284,6 +344,9 @@ var app = new Vue({
                 console.log(e)
                 return Promise.reject(e)
             }
+        },
+        generateID: function () {
+            return Math.floor(Math.random() * Date.now())
         }
     }, //endmethods
     mounted() {
