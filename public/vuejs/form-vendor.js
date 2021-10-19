@@ -303,6 +303,7 @@ var app = new Vue({
                 else {
                     toastr.success(insert.message)
                     this.onCancelCategory()
+                    this.loadVendor()
                 }
             } else {
                 if (this.formCategory.image !== null && this.formCategory.image !== this.defaultCategoryImage)
