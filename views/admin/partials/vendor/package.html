@@ -42,6 +42,9 @@
         <div class="card-footer">
             <button type="submit" class="btn btn-primary" v-on:click="onSavePackage()">Simpan</button>
             <button type="submit" class="btn btn-primary" v-on:click="onCancelPackage()">Batal</button>
+            <button type="submit" class="btn btn-primary" v-if="formPackage._id !== null"
+                    v-on:click="onDeletePackage()">Hapus
+            </button>
         </div>
     </div>
 
@@ -57,7 +60,8 @@
                 </div>
                 <div class="column col-7">
                     <div class="card-header">
-                        <div class="card-title h6">{{ data.name }}</div><br>
+                        <div class="card-title h6">{{ data.name }}</div>
+                        <br>
                         <p>Rp. {{ data.price }}</p>
                     </div>
                 </div>

@@ -5,9 +5,11 @@ var app = new Vue({
         defaultImage: "",
         defaultPackageImage: "",
         defaultCategoryImage: "",
+        defaultSubCategoryImage: "",
         isLoadingPackage: true,
         addPackageMode: false,
         addCategoryMode: false,
+        addSubCategoryMode: false,
         index: 0,
         form: {
             _id: null,
@@ -35,9 +37,19 @@ var app = new Vue({
             price: "",
             image: null
         },
-        package: []
+        formSubCategory: {
+            _id: null,
+            category_id: null,
+            items: [],
+            name: "",
+            price: "",
+            image: null
+        },
+        package: [],
+        subcategory: []
     }, //enddata
     methods: {
+        //Vendor Area
         checkResponse: function (data) {
             if (data.code === 0)
                 toastr.error(data.message)
@@ -61,24 +73,6 @@ var app = new Vue({
             if (this.form.type === "")
                 status = true
             if (this.form.phone === "" || isNaN(this.form.phone))
-                status = true
-            return status
-        },
-        packageValidation: function () {
-            let status = false
-            if (this.formPackage.name === "")
-                status = true
-            if (this.formPackage.price === "" || isNaN(this.formPackage.price))
-                status = true
-            if (this.formPackage.composition === "")
-                status = true
-            return status
-        },
-        categoryValidation: function () {
-            let status = false
-            if (this.formCategory.name === "")
-                status = true
-            if (this.formCategory.price === "" || isNaN(this.formCategory.price))
                 status = true
             return status
         },
@@ -130,23 +124,6 @@ var app = new Vue({
                 return Promise.reject(e)
             }
         },
-        setSideBarIndex: function (index) {
-            this.sideBarIndex = index
-            console.log(this.sideBarIndex)
-        },
-        activeSideBarIndex: function (idx) {
-            return this.sideBarIndex === idx
-        },
-        togglePackageMode: function (status) {
-            this.onCancelPackage()
-            document.getElementById("packagetitle").innerHTML = "Tambah Package Baru"
-            this.addPackageMode = status
-        },
-        toggleCategoryMode: function (status) {
-            this.onCancelPackage()
-            document.getElementById("categorytitle").innerHTML = "Tambah Kategori Baru"
-            this.addCategoryMode = status
-        },
         onPhotoChange: function (e) {
             try {
                 let [file] = e.target.files
@@ -156,26 +133,6 @@ var app = new Vue({
                 document.getElementById("labelphoto").innerHTML = this.form.image.name;
             } catch (error) {
                 console.log(error)
-            }
-        },
-        photoUpload: async function (type) {
-            try {
-                let formData = new FormData();
-                if (type === "Vendor")
-                    formData.append('file', this.form.image)
-                else if (type === "Package")
-                    formData.append('file', this.formPackage.image)
-                else if (type === "Category")
-                    formData.append('file', this.formCategory.image)
-                const res = await fetch('/api/upload-image', {
-                    method: 'POST',
-                    body: formData
-                });
-                if (res.status != 200) throw Error("Upload photo gagal!");
-                const data = await res.json();
-                return Promise.resolve(data.path);
-            } catch (err) {
-                return Promise.reject(err);
             }
         },
         loadVendor: async function () {
@@ -195,6 +152,22 @@ var app = new Vue({
                 console.log(e)
             }
         },
+        //Package Area
+        packageValidation: function () {
+            let status = false
+            if (this.formPackage.name === "")
+                status = true
+            if (this.formPackage.price === "" || isNaN(this.formPackage.price))
+                status = true
+            if (this.formPackage.composition === "")
+                status = true
+            return status
+        },
+        togglePackageMode: function (status) {
+            this.onCancelPackage()
+            document.getElementById("packagetitle").innerHTML = "Tambah Package Baru"
+            this.addPackageMode = status
+        },
         onPackageImageChange: function (e) {
             try {
                 let [file] = e.target.files
@@ -202,17 +175,6 @@ var app = new Vue({
                     throw Error("File tidak dipilih")
                 this.formPackage.image = file
                 document.getElementById("labelphotopackage").innerHTML = this.formPackage.image.name;
-            } catch (error) {
-                console.log(error)
-            }
-        },
-        onCategoryImageChange: function (e) {
-            try {
-                let [file] = e.target.files
-                if (!file)
-                    throw Error("File tidak dipilih")
-                this.formCategory.image = file
-                document.getElementById("labelphotocategory").innerHTML = this.formCategory.image.name;
             } catch (error) {
                 console.log(error)
             }
@@ -241,16 +203,6 @@ var app = new Vue({
             this.defaultPackageImage = ""
             document.getElementById("labelphotopackage").innerHTML = "Pilih File"
         },
-        onCancelCategory: function () {
-            this.addCategoryMode = false
-            this.formCategory.id = null
-            this.formCategory.name = ""
-            this.formCategory.price = ""
-            this.formCategory.image = null
-            this.defaultCategoryImage = ""
-            this.index = 0
-            document.getElementById("labelphotocategory").innerHTML = "Pilih File"
-        },
         onSelectPackage: function (index) {
             this.onCancelPackage()
             this.isLoadingPackage = true
@@ -269,6 +221,123 @@ var app = new Vue({
             this.isLoadingPackage = false
             this.addPackageMode = true
             window.scrollTo(0, 0)
+        },
+        onSavePackage: async function () {
+            const status = this.packageValidation()
+            if (status) {
+                toastr.warning("Harap isi semua form isian yang wajib diisi!")
+                return
+            }
+            toastr.info("Harap tunggu...")
+            if (this.formPackage._id === null) {
+                const insert = await this.onInsertPackage()
+                if (insert.code === 0)
+                    toastr.error(insert.message)
+                else {
+                    toastr.success(insert.message)
+                    this.onCancelPackage()
+                    this.loadPackage()
+                }
+            } else {
+                const update = await this.onUpdatePackage()
+                if (update.code === 0)
+                    toastr.error(update.message)
+                else {
+                    toastr.success(update.message)
+                    this.onCancelPackage()
+                    this.loadPackage()
+                }
+            }
+        },
+        onDeletePackage: async function () {
+            toastr.info("Sedang Menghapus, harap tunggu...")
+            try {
+                let formData = {...this.formPackage}
+                const result = await fetch('/api/package', {
+                    method: 'DELETE',
+                    body: JSON.stringify(formData),
+                    headers: {'Content-Type': "application/json"}
+                })
+                const data = await result.json()
+                if (data.code === 1) {
+                    toastr.success(data.message)
+                    this.loadPackage()
+                    this.onCancelPackage()
+                } else
+                    toastr.error(data.message)
+            } catch (e) {
+                toastr.error("Terjadi kesalahan!")
+                console.log(e)
+            }
+        },
+        onInsertPackage: async function () {
+            try {
+                let formData = {...this.formPackage}
+                if (formData.image !== null)
+                    formData.image = await this.photoUpload("Package")
+                const result = await fetch('/api/package', {
+                    method: 'POST',
+                    body: JSON.stringify(formData),
+                    headers: {'Content-Type': "application/json"}
+                })
+                const data = await result.json()
+                return Promise.resolve(data)
+            } catch (e) {
+                console.log(e)
+                return Promise.reject(e)
+            }
+        },
+        onUpdatePackage: async function () {
+            try {
+                let formData = {...this.formPackage}
+                if (formData.image !== null && formData.image !== this.defaultPackageImage)
+                    formData.image = await this.photoUpload("Package")
+                const result = await fetch('/api/package', {
+                    method: 'PUT',
+                    body: JSON.stringify(formData),
+                    headers: {'Content-Type': "application/json"}
+                })
+                const data = await result.json()
+                return Promise.resolve(data)
+            } catch (e) {
+                console.log(e)
+                return Promise.reject(e)
+            }
+        },
+        //Category Area
+        categoryValidation: function () {
+            let status = false
+            if (this.formCategory.name === "")
+                status = true
+            if (this.formCategory.price === "" || isNaN(this.formCategory.price))
+                status = true
+            return status
+        },
+        toggleCategoryMode: function (status) {
+            this.onCancelCategory()
+            document.getElementById("categorytitle").innerHTML = "Tambah Kategori Baru"
+            this.addCategoryMode = status
+        },
+        onCategoryImageChange: function (e) {
+            try {
+                let [file] = e.target.files
+                if (!file)
+                    throw Error("File tidak dipilih")
+                this.formCategory.image = file
+                document.getElementById("labelphotocategory").innerHTML = this.formCategory.image.name;
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        onCancelCategory: function () {
+            this.addCategoryMode = false
+            this.formCategory.id = null
+            this.formCategory.name = ""
+            this.formCategory.price = ""
+            this.formCategory.image = null
+            this.defaultCategoryImage = ""
+            this.index = 0
+            document.getElementById("labelphotocategory").innerHTML = "Pilih File"
         },
         onSelectCategory: function (index) {
             this.onCancelCategory()
@@ -319,69 +388,75 @@ var app = new Vue({
                 }
             }
         },
-        onSavePackage: async function () {
-            const status = this.packageValidation()
-            if (status) {
-                toastr.warning("Harap isi semua form isian yang wajib diisi!")
-                return
-            }
-            toastr.info("Harap tunggu...")
-            if (this.formPackage._id === null) {
-                const insert = await this.onInsertPackage()
-                if (insert.code === 0)
-                    toastr.error(insert.message)
-                else {
-                    toastr.success(insert.message)
-                    this.onCancelPackage()
-                    this.loadPackage()
-                }
-            } else {
-                const update = await this.onUpdatePackage()
-                if (update.code === 0)
-                    toastr.error(update.message)
-                else {
-                    toastr.success(update.message)
-                    this.onCancelPackage()
-                    this.loadPackage()
-                }
+        onDeleteCategory: async function () {
+            this.form.category.splice(this.index, 1)
+            const onDelete = await this.onUpdate()
+            if (onDelete.code === 0)
+                toastr.error(onDelete.message)
+            else {
+                toastr.success("Berhasil Menghapus Kategori!")
+                this.onCancelCategory()
+                this.loadVendor()
             }
         },
-        onInsertPackage: async function () {
+        //SubCategory Area
+        loadSubCategory: async function (event) {
+            if (event.target.value === undefined) return
             try {
-                let formData = {...this.formPackage}
-                if (formData.image !== null)
-                    formData.image = await this.photoUpload("Package")
-                const result = await fetch('/api/package', {
-                    method: 'POST',
-                    body: JSON.stringify(formData),
-                    headers: {'Content-Type': "application/json"}
-                })
+                const category_id = event.target.value
+                this.formSubCategory.category_id = category_id
+                const result = await fetch(`/api/sub-category/${category_id}`)
                 const data = await result.json()
-                return Promise.resolve(data)
+                this.subcategory = data.result
             } catch (e) {
+                toastr.error("Terjadi kesalahan saat memuat Sub-Category!")
                 console.log(e)
-                return Promise.reject(e)
             }
         },
-        onUpdatePackage: async function () {
-            try {
-                let formData = {...this.formPackage}
-                if (formData.image !== null && formData.image !== this.defaultPackageImage)
-                    formData.image = await this.photoUpload("Package")
-                const result = await fetch('/api/package', {
-                    method: 'PUT',
-                    body: JSON.stringify(formData),
-                    headers: {'Content-Type': "application/json"}
-                })
-                const data = await result.json()
-                return Promise.resolve(data)
-            } catch (e) {
-                console.log(e)
-                return Promise.reject(e)
-            }
+        onCancelSubCategory: function () {
+            this.addSubCategoryMode = false
+            this.formSubCategory._id = null
+            this.formSubCategory.name = ""
+            this.formSubCategory.price = ""
+            this.formSubCategory.image = null
+            this.defaultSubCategoryImage = ""
+            document.getElementById("labelphotosubcategory").innerHTML = "Pilih File"
         },
+        toggleSubCategoryMode: function (status) {
+            this.onCancelSubCategory()
+            document.getElementById("subcategorytitle").innerHTML = "Tambah Sub-Kategori Baru"
+            this.addSubCategoryMode = status
+        },
+        //Others Area
         generateID: function () {
             return Math.floor(Math.random() * Date.now())
+        },
+        setSideBarIndex: function (index) {
+            this.sideBarIndex = index
+            console.log(this.sideBarIndex)
+        },
+        activeSideBarIndex: function (idx) {
+            return this.sideBarIndex === idx
+        },
+        photoUpload: async function (type) {
+            try {
+                let formData = new FormData();
+                if (type === "Vendor")
+                    formData.append('file', this.form.image)
+                else if (type === "Package")
+                    formData.append('file', this.formPackage.image)
+                else if (type === "Category")
+                    formData.append('file', this.formCategory.image)
+                const res = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.status != 200) throw Error("Upload photo gagal!");
+                const data = await res.json();
+                return Promise.resolve(data.path);
+            } catch (err) {
+                return Promise.reject(err);
+            }
         }
     }, //endmethods
     mounted() {

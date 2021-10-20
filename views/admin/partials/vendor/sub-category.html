@@ -1,28 +1,37 @@
-<div v-show="sideBarIndex === 2">
-    <button type="submit" class="btn btn-primary" v-on:click="toggleCategoryMode(true)" style="margin: 10px">Tambah
+<div v-show="sideBarIndex === 3">
+    <div class="form-group">
+        <label>Pilih Kategori</label>
+        <select class="form-control" v-for="data in form.category" v-on:change="loadSubCategory($event)">
+            <option value="" disabled selected v-if="form.category.length === 0">Belum ada kategori</option>
+            <option value="" disabled selected v-if="form.category.length > 0">Pilih kategori</option>
+            <option v-bind:value="data.id"> {{data.name}}</option>
+        </select>
+    </div>
+    <hr>
+    <button type="submit" class="btn btn-primary" v-on:click="toggleSubCategoryMode(true)" style="margin: 10px">Tambah
     </button>
-    <div class="card card-primary" v-show="addCategoryMode === true">
+    <div class="card card-primary" v-show="addSubCategoryMode === true && formSubCategory.category_id !== null">
         <div class="card-header">
-            <h3 class="card-title" id="categorytitle">Tambah Kategori Baru</h3>
+            <h3 class="card-title" id="subcategorytitle">Tambah Sub-Kategori Baru</h3>
         </div>
         <!-- /.card-header -->
         <div class="card-body">
             <div class="form-group">
                 <label for="name">*Nama</label>
-                <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan Nama Kategori"
-                       v-model="formCategory.name">
+                <input type="text" class="form-control" name="name" id="name" placeholder="Masukkan Nama Sub-Kategori"
+                       v-model="formSubCategory.name">
             </div>
             <div class="form-group">
-                <label for="price">*Harga Kategori</label>
-                <input type="number" class="form-control" name="price" id="price" placeholder="Masukkan Harga Kategori"
-                       v-model="formCategory.price">
+                <label for="price">*Harga Sub-Kategori</label>
+                <input type="number" class="form-control" name="price" id="price" placeholder="Masukkan Harga Sub-Kategori"
+                       v-model="formSubCategory.price">
             </div>
             <div class="form-group">
-                <label for="image">Foto Kategori </label>
+                <label for="image">Foto Sub-Kategori </label>
                 <div class="input-group">
                     <div class="custom-file">
                         <input type="file" class="custom-file-input" id="image" v-on:change="onCategoryImageChange">
-                        <label class="custom-file-label" id="labelphotocategory" for="image">Pilih File</label>
+                        <label class="custom-file-label" id="labelphotosubcategory" for="image">Pilih File</label>
                     </div>
                 </div>
             </div>
@@ -38,7 +47,7 @@
         </div>
     </div>
 
-    <div class="column col-4" style="padding: 10px;" v-for="(data, index) in form.category">
+    <div class="column col-4" style="padding: 10px;" v-for="(data, index) in subcategory">
         <div class="card" style="height: 100%; border-radius: 15px;" v-on:click="onSelectCategory(index)">
             <div class="columns">
                 <div class="column col-5">

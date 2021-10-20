@@ -31,8 +31,19 @@ const updateVendorPackage = async (req, res) => {
     }
 }
 
+const deleteVendorPackage = async (req, res) => {
+    try {
+        const result = await Package.deleteOne({_id: req.body._id})
+        return res.json({code: 1, message: "Berhasil menghapus package!"})
+    } catch (e) {
+        console.log(e)
+        return res.json({code: 0, message: "Terjadi kesalahan, periksa internet anda!"})
+    }
+}
+
 module.exports = {
     getVendorPackage,
     insertVendorPackage,
-    updateVendorPackage
+    updateVendorPackage,
+    deleteVendorPackage
 }
