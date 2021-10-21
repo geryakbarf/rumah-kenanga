@@ -432,7 +432,6 @@ var app = new Vue({
         },
         onSelectSubCategory: function (index) {
             this.onCancelSubCategory()
-            this.index = index
             document.getElementById("subcategorytitle").innerHTML = "Ubah Data Kategori"
             this.formSubCategory._id = this.subcategory[index]._id
             this.formSubCategory.name = this.subcategory[index].name
@@ -443,7 +442,7 @@ var app = new Vue({
                 document.getElementById("labelphotosubcategory").innerHTML =
                     this.subcategory[index].image.substring(1, this.subcategory[index].image.length)
             }
-            this.addCategoryMode = true
+            this.addSubCategoryMode = true
             window.scrollTo(0, 0)
         },
         toggleSubCategoryMode: function (status) {
@@ -460,6 +459,7 @@ var app = new Vue({
             toastr.info("Harap Tunggu...")
             try {
                 if (this.formSubCategory._id === null) {
+                    //Insert
                     let formData = {...this.formSubCategory}
                     if (formData.image !== null)
                         formData.image = await this.photoUpload("SubCategory")
@@ -481,7 +481,26 @@ var app = new Vue({
                     } else
                         toastr.error(message)
                 } else {
-
+                    //Update
+                    let formData = {...this.formSubCategory}
+                    if (formData.image !== null && formData.image !== this.defaultSubCategoryImage)
+                        formData.image = await this.photoUpload("SubCategory")
+                    const result = await fetch('/api/sub-category', {
+                        method: 'PUT',
+                        body: JSON.stringify(formData),
+                        headers: {'Content-Type': "application/json"}
+                    })
+                    const data = await result.json()
+                    const code = data.code
+                    const message = data.message
+                    if (code === 1) {
+                        toastr.success(message)
+                        this.onCancelSubCategory()
+                        const result = await fetch(`/api/sub-category/${this.formSubCategory.category_id}`)
+                        const data = await result.json()
+                        this.subcategory = data.result
+                    } else
+                        toastr.error(message)
                 }
             } catch (e) {
                 console.log(e)
@@ -496,6 +515,29 @@ var app = new Vue({
                 document.getElementById("labelphotosubcategory").innerHTML = this.formSubCategory.image.name;
             } catch (error) {
                 console.log(error)
+            }
+        },
+        onDeleteSubCategory: async function () {
+            try {
+                const formData = {...this.formSubCategory}
+                const result = await fetch('/api/sub-category', {
+                    method: 'DELETE',
+                    body: JSON.stringify(formData),
+                    headers: {'Content-Type': "application/json"}
+                })
+                const data = await result.json()
+                const code = data.code
+                const message = data.message
+                if (code === 1) {
+                    toastr.success(message)
+                    this.onCancelSubCategory()
+                    const result = await fetch(`/api/sub-category/${this.formSubCategory.category_id}`)
+                    const data = await result.json()
+                    this.subcategory = data.result
+                } else
+                    toastr.error(message)
+            } catch (e) {
+                console.log(e)
             }
         },
         //Others Area

@@ -20,6 +20,8 @@ router.delete('/package', Package.deleteVendorPackage)
 //Area Sub-Category
 router.get('/sub-category/:id', Sub.getSubCategory)
 router.post('/sub-category', Sub.insertSubCategory)
+router.put('/sub-category', Sub.updateSubCategory)
+router.delete('/sub-category', Sub.deleteSubCategory)
 
 //Area Upload File
 router.post('/upload-image', Upload.uploadImage)
