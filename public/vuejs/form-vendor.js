@@ -400,6 +400,14 @@ var app = new Vue({
             }
         },
         //SubCategory Area
+        subCategoryValidation: function () {
+            let status = false
+            if (this.formSubCategory.name === "")
+                status = true
+            if (this.formSubCategory.price === "" || isNaN(this.formSubCategory.price))
+                status = true
+            return status
+        },
         loadSubCategory: async function (event) {
             if (event.target.value === undefined) return
             try {
@@ -422,10 +430,73 @@ var app = new Vue({
             this.defaultSubCategoryImage = ""
             document.getElementById("labelphotosubcategory").innerHTML = "Pilih File"
         },
+        onSelectSubCategory: function (index) {
+            this.onCancelSubCategory()
+            this.index = index
+            document.getElementById("subcategorytitle").innerHTML = "Ubah Data Kategori"
+            this.formSubCategory._id = this.subcategory[index]._id
+            this.formSubCategory.name = this.subcategory[index].name
+            this.formSubCategory.price = this.subcategory[index].price
+            if (this.subcategory[index].image) {
+                this.formSubCategory.image = this.subcategory[index].image
+                this.defaultSubCategoryImage = this.subcategory[index].image
+                document.getElementById("labelphotosubcategory").innerHTML =
+                    this.subcategory[index].image.substring(1, this.subcategory[index].image.length)
+            }
+            this.addCategoryMode = true
+            window.scrollTo(0, 0)
+        },
         toggleSubCategoryMode: function (status) {
             this.onCancelSubCategory()
             document.getElementById("subcategorytitle").innerHTML = "Tambah Sub-Kategori Baru"
             this.addSubCategoryMode = status
+        },
+        onSaveSubCategory: async function () {
+            const status = this.subCategoryValidation()
+            if (status) {
+                toastr.warning("Harap isi semua form isian yang wajib diisi!")
+                return
+            }
+            toastr.info("Harap Tunggu...")
+            try {
+                if (this.formSubCategory._id === null) {
+                    let formData = {...this.formSubCategory}
+                    if (formData.image !== null)
+                        formData.image = await this.photoUpload("SubCategory")
+                    console.log(formData)
+                    const result = await fetch('/api/sub-category', {
+                        method: 'POST',
+                        body: JSON.stringify(formData),
+                        headers: {'Content-Type': "application/json"}
+                    })
+                    const data = await result.json()
+                    const code = data.code
+                    const message = data.message
+                    if (code === 1) {
+                        toastr.success(message)
+                        this.onCancelSubCategory()
+                        const result = await fetch(`/api/sub-category/${this.formSubCategory.category_id}`)
+                        const data = await result.json()
+                        this.subcategory = data.result
+                    } else
+                        toastr.error(message)
+                } else {
+
+                }
+            } catch (e) {
+                console.log(e)
+            }
+        },
+        onSubCategoryImageChange: function (e) {
+            try {
+                let [file] = e.target.files
+                if (!file)
+                    throw Error("File tidak dipilih")
+                this.formSubCategory.image = file
+                document.getElementById("labelphotosubcategory").innerHTML = this.formSubCategory.image.name;
+            } catch (error) {
+                console.log(error)
+            }
         },
         //Others Area
         generateID: function () {
@@ -447,6 +518,8 @@ var app = new Vue({
                     formData.append('file', this.formPackage.image)
                 else if (type === "Category")
                     formData.append('file', this.formCategory.image)
+                else if (type === "SubCategory")
+                    formData.append('file', this.formSubCategory.image)
                 const res = await fetch('/api/upload-image', {
                     method: 'POST',
                     body: formData
